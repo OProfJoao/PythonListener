@@ -7,6 +7,7 @@ def on_message(client,userData,msg):
 
 
 mqttClient = mqtt.Client(mqtt.API_VERSION2,client_id="GlobalListener")
+mqttClient.tls_insecure_set()
 
 mqttClient.username_pw_set("USER","PASSWORD")
 mqttClient.connect("host",8883,)
