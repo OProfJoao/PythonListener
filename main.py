@@ -1,4 +1,7 @@
 import paho.mqtt.client as mqtt
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def on_message(client,userData,msg):
     print(f"{msg.topic}: {str(msg.payload)}")
