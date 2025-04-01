@@ -6,8 +6,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def on_message(client,userData,msg):
-    print(f"{msg.topic}: {str(msg.payload.decode())}")
+    print(f"Topic: {msg.topic} | Mensagem: {str(msg.payload.decode())}")
 
+def on_connect(client, userdata, flags, reason_code, properties=None):
+    if( reason_code == 0):
+        print(f"Connected with code: {reason_code}")
+        mqttClient.subscribe("#")
+        print("Listening to broker...")
+    else:
+        print("Failed to connect to Broker")
+        
 BROKER = os.getenv("MQTT_BROKER")
 PORT = 8883
 USER = os.getenv("MQTT_USER")
@@ -15,17 +23,19 @@ PASSWORD = os.getenv("MQTT_PASSWORD")
 
 
 
-mqttClient = mqtt.Client(client_id="GlobalListener")
+mqttClient = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,client_id="GlobalListener")
 mqttClient.tls_set()
-mqttClient.tls_insecure_set()
+mqttClient.tls_insecure_set(True)
 
 mqttClient.username_pw_set(USER,PASSWORD)
 mqttClient.connect(BROKER,PORT)
 
-mqttClient.subscribe("#")
+
+
+mqttClient.on_connect = on_connect
 mqttClient.on_message = on_message
 
 mqttClient.loop_forever()
 
-time.sleep(0.5)
+mqttClient.disconnect()
 
