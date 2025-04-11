@@ -13,24 +13,32 @@ PASSWORD = os.getenv("MQTT_PASSWORD")
 
 # Tópicos a monitorar
 TOPICS = {
-    "ferrorama/station/luminanceStatus": None,
+    "ferrorama/nodes/luminanceStatus": None,
     "ferrorama/station/presence3": None,
-    "ferrorama/station/presence1": None,
-    "ferrorama/station/humidity": None,
-    "ferrorama/station/temperature": None,
+    "ferrorama/nodes/presence1": None,
+    "ferrorama/nodes/presence2": None,
+    "ferrorama/nodes/presence3": None,
+    "ferrorama/nodes/presence4": None,
+    "ferrorama/nodes/humidity": None,
+    "ferrorama/nodes/temperature": None,
 }
+
+# Tópicos com valores booleanos (0/1)
+BOOLEAN_TOPICS = [
+    "ferrorama/nodes/luminanceStatus",
+    "ferrorama/station/presence3",
+    "ferrorama/nodes/presence1",
+    "ferrorama/nodes/presence2",
+    "ferrorama/nodes/presence3",
+    "ferrorama/nodes/presence4"
+]
 
 # Função para atualizar os indicadores na interface
 def update_indicator(topic, message):
-    # Para indicadores booleanos
-    if topic in [
-        "ferrorama/station/luminanceStatus",
-        "ferrorama/station/presence3",
-        "ferrorama/station/presence1"
-    ]:
-        color = "green" if message == "1" else "red" if message == "0" else "gray"
-        indicators[topic].config(bg=color, text=f"{topic.split('/')[-1]}: {message}")
-    # Para temperatura e umidade, apenas atualizar texto
+    if topic in BOOLEAN_TOPICS:
+        msg = message.strip()
+        color = "green" if msg == "1" else "red" if msg == "0" else "gray"
+        indicators[topic].config(bg=color, text=f"{topic.split('/')[-1]}: {msg}")
     else:
         indicators[topic].config(bg="white", text=f"{topic.split('/')[-1]}: {message}")
 
@@ -45,11 +53,11 @@ def on_message(client, userdata, msg):
 # Função chamada ao conectar no broker
 def on_connect(client, userdata, flags, reason_code, properties=None):
     if reason_code == 0:
-        print(f"Conectado com código: {reason_code}")
+        print(f"Conectado com sucesso ao broker.")
         client.subscribe("#")
-        print("Escutando o broker...")
+        print("Escutando todos os tópicos...")
     else:
-        print("Falha na conexão com o Broker")
+        print(f"Falha na conexão com o Broker. Código: {reason_code}")
 
 # Cliente MQTT
 mqttClient = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="GlobalListener")
